@@ -1,4 +1,4 @@
-package com.phunware.azulcorebluetooth;
+package com.catennacio.simpleblescanner;
 
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;

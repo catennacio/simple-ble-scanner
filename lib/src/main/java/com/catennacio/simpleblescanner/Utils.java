@@ -1,4 +1,4 @@
-package com.phunware.azulcorebluetooth;
+package com.catennacio.simpleblescanner;
 
 import java.nio.ByteBuffer;
 import java.util.UUID;

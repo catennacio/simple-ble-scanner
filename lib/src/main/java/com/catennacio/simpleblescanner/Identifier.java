@@ -1,4 +1,4 @@
-package com.phunware.azulcorebluetooth;
+package com.catennacio.simpleblescanner;
 
 /**
  * Created by Duy Nguyen on 8/1/17.

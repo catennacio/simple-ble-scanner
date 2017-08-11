@@ -1,4 +1,4 @@
-package com.phunware.azulcorebluetooth;
+package com.catennacio.simpleblescanner;
 
 import java.util.List;
 
