@@ -2,11 +2,16 @@ package com.catennacio.simpleblescanner;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.ScanFilter;
 import android.content.Context;
 import android.os.Handler;
+import android.os.ParcelFormatException;
+import android.os.ParcelUuid;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -23,6 +28,8 @@ public class BleScanner
     private BeaconReadingContinuousDispatcher beaconReadingContinuousDispatcher;
     private BleScannerListener bleScannerListener;
 
+    private BluetoothAdapter bluetoothAdapter;
+
     //need to run on another thread, if not, start/stop bluetooth adapter can block UI thread
     private BleScanRunnable bleScanRunnable;
 
@@ -30,6 +37,8 @@ public class BleScanner
     private Handler continuousScanHandler;
 
     private final Handler runOnUiThreadHandler;
+    private HashSet<ParcelUuid> uuids = new HashSet<>();
+    private List<ScanFilter> scanFilters = new ArrayList<>();
 
     public BleScanner(@NonNull Context context, @NonNull BleScannerOptions scannerOptions, @NonNull final BleScannerListener listener) throws Exception
     {
@@ -40,21 +49,48 @@ public class BleScanner
         }
         else
         {
-            BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+            bluetoothAdapter = bluetoothManager.getAdapter();
             this.scannerOptions = scannerOptions;
             this.bleScannerListener = listener;
             periodicScanHandler = new Handler();
             continuousScanHandler=  new Handler();
-            bleScanRunnable = new BleScanRunnable(bluetoothAdapter.getBluetoothLeScanner(), scannerOptions);
             runOnUiThreadHandler = new Handler(context.getMainLooper());
         }
     }
 
-    public void startScan()
+    public ParcelUuid addUuidToMonitor(@NonNull String uuid) throws ParcelFormatException
+    {
+        ParcelUuid ret = null;
+        try
+        {
+            Identifier identifier = Identifier.parse(uuid);
+            ret = ParcelUuid.fromString(identifier.toString());
+            uuids.add(ret);
+        }
+        catch(ParcelFormatException ex)
+        {
+            throw new ParcelFormatException("UUIDs not in valid format");
+        }
+
+        return ret;
+    }
+
+    public void removeUuidToMonitor(@NonNull String uuid)
+    {
+        uuids.remove(uuid);
+    }
+
+    public void start()
     {
         if(!isScanning)
         {
-            Log.d(TAG, "startScan: ");
+            Log.d(TAG, "start: ");
+            if(bleScanRunnable != null)
+            {
+                bleScanRunnable.stop();
+            }
+
+            bleScanRunnable = new BleScanRunnable(bluetoothAdapter.getBluetoothLeScanner(), scannerOptions, uuids);
             switch(scannerOptions.getScanStrategy())
             {
                 case SCAN_STRATEGY_CONTINUOUS:
@@ -74,11 +110,11 @@ public class BleScanner
         }
     }
 
-    public void stopScan()
+    public void stop()
     {
         if(isScanning)
         {
-            Log.d(TAG, "stopScan: ");
+            Log.d(TAG, "stop: ");
             bleScanRunnable.stop();
             switch(scannerOptions.getScanStrategy())
             {
@@ -96,6 +132,11 @@ public class BleScanner
             }
             isScanning = false;
         }
+    }
+
+    public boolean isScanning()
+    {
+        return isScanning;
     }
 
     private Runnable continuousNotifyRunnable = new Runnable()
@@ -151,7 +192,7 @@ public class BleScanner
             @Override
             public void run()
             {
-                Log.d(TAG, "run: dispatching " + readings.size() + " readings...");
+                Log.d(TAG, "notifyListener: dispatching " + readings.size() + " readings...");
                 bleScannerListener.onBleScannerResult(readings);
                 readings.clear();
             }

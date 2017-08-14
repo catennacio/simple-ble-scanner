@@ -1,11 +1,6 @@
 package com.catennacio.simpleblescanner;
 
 import android.bluetooth.le.ScanSettings;
-import android.os.ParcelFormatException;
-import android.os.ParcelUuid;
-import android.support.annotation.NonNull;
-
-import java.util.HashSet;
 
 /**
  * Created by Duy Nguyen on 8/1/17.
@@ -15,9 +10,9 @@ public class BleScannerOptions
 {
     public static final String TAG = BleScannerOptions.class.getSimpleName();
 
-    private HashSet<ParcelUuid> uuids;
     private ScanSettings scanSettings;
     private ScanStrategy scanStrategy;
+    private int scanMode;
 
     //The larger the number the more beacons accumulated, the less frequent you will see a raw update from Azul
     //Do not set more than 1000 because JNI converting table may crash.
@@ -48,22 +43,12 @@ public class BleScannerOptions
         SCAN_STRATEGY_CONTINUOUS//keep scanning to ble signal until manually stopped
     }
 
-    public BleScannerOptions()
-    {
-        uuids = new HashSet<>();
-        setScanMode(ScanMode.SCAN_MODE_BALANCE);
-        this.scanStrategy = ScanStrategy.SCAN_STRATEGY_PERIODIC;
-        periodicScanLength = DEFAULT_PERIODIC_SCAN_LENGTH;
-        continuousDispatchInterval = DEFAULT_CONTINUOUS_DISPATCH_INTERVAL;
-    }
-
     public BleScannerOptions(ScanMode scanMode, ScanStrategy scanStrategy)
     {
-        uuids = new HashSet<>();
-        setScanMode(scanMode);
         this.scanStrategy = scanStrategy;
         periodicScanLength = DEFAULT_PERIODIC_SCAN_LENGTH;
         continuousDispatchInterval = DEFAULT_CONTINUOUS_DISPATCH_INTERVAL;
+        setScanMode(scanMode);
     }
 
     public void setPeriodicScanLength(long millis)
@@ -91,62 +76,34 @@ public class BleScannerOptions
         return scanStrategy;
     }
 
-    public ParcelUuid addUuidToMonitor(@NonNull String uuid) throws ParcelFormatException
-    {
-        ParcelUuid ret = null;
-        try
-        {
-            Identifier identifier = Identifier.parse(uuid);
-            ret = ParcelUuid.fromString(identifier.toString());
-            uuids.add(ret);
-        }
-        catch(ParcelFormatException ex)
-        {
-            throw new ParcelFormatException("UUIDs not in valid format");
-        }
-
-        return ret;
-    }
-
-    public void removeUuidToMonitor(@NonNull String uuid)
-    {
-        uuids.remove(uuid);
-    }
-
-    public HashSet<ParcelUuid> getMonitoredUuids()
-    {
-        return uuids;
-    }
-
     public void setScanMode(ScanMode scanMode)
     {
-        int mode;
         switch (scanMode)
         {
             case SCAN_MODE_LOW_LATENCY:
             {
-                mode = ScanSettings.SCAN_MODE_LOW_LATENCY;
+                this.scanMode = ScanSettings.SCAN_MODE_LOW_LATENCY;
                 break;
             }
             case SCAN_MODE_LOW_POWER:
             {
-                mode = ScanSettings.SCAN_MODE_LOW_POWER;
+                this.scanMode = ScanSettings.SCAN_MODE_LOW_POWER;
                 break;
             }
             case SCAN_MODE_OPPORTUNISTIC:
             {
-                mode = ScanSettings.SCAN_MODE_OPPORTUNISTIC;
+                this.scanMode = ScanSettings.SCAN_MODE_OPPORTUNISTIC;
                 break;
             }
             case SCAN_MODE_BALANCE:
             default:
             {
-                mode = ScanSettings.SCAN_MODE_BALANCED;
+                this.scanMode = ScanSettings.SCAN_MODE_BALANCED;
                 break;
             }
         }
 
-        scanSettings = new ScanSettings.Builder().setScanMode(mode).build();
+        scanSettings = new ScanSettings.Builder().setScanMode(this.scanMode).setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES).build();
     }
 
     public ScanSettings getScanSettings()
