@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">App</string>
+    <string name="app_name">Simple Ble Scanner</string>
+    <string name="title_activity_scrolling">ScrollingActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_start_scan">Scan</string>
+    <string name="action_stop_scan">Stop</string>
 </resources>
