@@ -34,6 +34,8 @@ public class BleScanRunnable implements Runnable
     private void startScan()
     {
         bleScanCallback = new BleScanCallback(uuids);
+//        scanner.startScan(null, scannerOptions.getScanSettings(), bleScanCallback);
+        scanFilters.clear();
         for(ParcelUuid uuid : uuids)
         {
             // Empty data
@@ -46,7 +48,7 @@ public class BleScanRunnable implements Runnable
             System.arraycopy(Utils.hexStringToByteArray(uuid.toString().replace("-","")), 0, manData, 2, 16);
 
             scanFilters.add(new ScanFilter.Builder().setManufacturerData(76, manData, mask).build());
-            Log.d(TAG, "startScan: " + uuid.toString());
+            Log.d(TAG, "startScan: will scan for " + uuid.toString());
         }
 
         if(scanFilters.size() > 0)
@@ -55,6 +57,7 @@ public class BleScanRunnable implements Runnable
         }
         else
         {
+            Log.d(TAG, "startScan: scanning for all UUIDs...");
             scanner.startScan(null, scannerOptions.getScanSettings(), bleScanCallback);
         }
     }

@@ -1,6 +1,7 @@
 package com.catennacio.simpleblescanner;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.ScanFilter;
 import android.content.Context;

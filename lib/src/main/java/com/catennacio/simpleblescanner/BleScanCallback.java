@@ -39,12 +39,19 @@ public class BleScanCallback extends ScanCallback
         if (result != null && result.getScanRecord() != null)
         {
             LiveBeaconReading liveBeaconReading = new LiveBeaconReading(result);
-            readings.add(liveBeaconReading);
-            /*if (liveBeaconReading.IBeacon != null && monitoredUuids
-                .contains(ParcelUuid.fromString(liveBeaconReading.IBeacon.UUID.toString())))
+            //only report iBeacon packets
+            if (liveBeaconReading.IBeacon != null)
             {
-
-            }*/
+                if (monitoredUuids.size() > 0 && monitoredUuids
+                    .contains(ParcelUuid.fromString(liveBeaconReading.IBeacon.UUID.toString())))
+                {
+                    readings.add(liveBeaconReading);
+                }
+                else if (monitoredUuids.size() == 0)
+                {
+                    readings.add(liveBeaconReading);
+                }
+            }
         }
     }
 

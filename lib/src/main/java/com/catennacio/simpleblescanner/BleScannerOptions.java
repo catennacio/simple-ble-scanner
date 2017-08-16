@@ -1,6 +1,8 @@
 package com.catennacio.simpleblescanner;
 
 import android.bluetooth.le.ScanSettings;
+import android.os.Build;
+import android.util.Log;
 
 /**
  * Created by Duy Nguyen on 8/1/17.
@@ -43,12 +45,19 @@ public class BleScannerOptions
         SCAN_STRATEGY_CONTINUOUS//keep scanning to ble signal until manually stopped
     }
 
-    public BleScannerOptions(ScanMode scanMode, ScanStrategy scanStrategy)
+    public BleScannerOptions(ScanMode scanMode, ScanStrategy scanStrategy) throws Exception
     {
-        this.scanStrategy = scanStrategy;
-        periodicScanLength = DEFAULT_PERIODIC_SCAN_LENGTH;
-        continuousDispatchInterval = DEFAULT_CONTINUOUS_DISPATCH_INTERVAL;
-        setScanMode(scanMode);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && scanStrategy == ScanStrategy.SCAN_STRATEGY_PERIODIC)
+        {
+            throw new Exception("As of Android N DP4 Ble scanner cannot be restarted more than 5 times per 30 seconds");
+        }
+        else
+        {
+            this.scanStrategy = scanStrategy;
+            periodicScanLength = DEFAULT_PERIODIC_SCAN_LENGTH;
+            continuousDispatchInterval = DEFAULT_CONTINUOUS_DISPATCH_INTERVAL;
+            setScanMode(scanMode);
+        }
     }
 
     public void setPeriodicScanLength(long millis)
@@ -92,7 +101,15 @@ public class BleScannerOptions
             }
             case SCAN_MODE_OPPORTUNISTIC:
             {
-                this.scanMode = ScanSettings.SCAN_MODE_OPPORTUNISTIC;
+                Log.d(TAG, "setScanMode: Cannot set SCAN_MODE_OPPORTUNISTIC for SDK < 23. Default to SCAN_MODE_BALANCED.");
+                if(Build.VERSION.SDK_INT > 22)
+                {
+                    this.scanMode = ScanSettings.SCAN_MODE_OPPORTUNISTIC;
+                }
+                else
+                {
+                    this.scanMode = ScanSettings.SCAN_MODE_BALANCED;
+                }
                 break;
             }
             case SCAN_MODE_BALANCE:
@@ -103,7 +120,14 @@ public class BleScannerOptions
             }
         }
 
-        scanSettings = new ScanSettings.Builder().setScanMode(this.scanMode).setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES).build();
+        if(Build.VERSION.SDK_INT > 22)
+        {
+            scanSettings = new ScanSettings.Builder().setScanMode(this.scanMode).build();
+        }
+        else
+        {
+            scanSettings = new ScanSettings.Builder().setScanMode(this.scanMode).build();
+        }
     }
 
     public ScanSettings getScanSettings()

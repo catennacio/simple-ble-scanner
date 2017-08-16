@@ -1,6 +1,7 @@
 package com.catennacio.simpleblescanner;
 
 import android.bluetooth.le.ScanResult;
+import android.util.Log;
 
 import org.parceler.Parcel;
 
