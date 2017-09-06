@@ -31,6 +31,8 @@ Require SDK >= 22
 
     public class MainActivity implements BleScannerListener
     {
+        BleScanner bleScanner;
+        
         @Override
         protected void onCreate(Bundle savedInstanceState)
         {
@@ -49,7 +51,7 @@ Require SDK >= 22
                 }
               
                 Log.d(TAG, "onCreate: scanStrategy = " + scanStrategy);
-                bleScannerOptions = new BleScannerOptions(BleScannerOptions.ScanMode.SCAN_MODE_BALANCE, scanStrategy);
+                BleScannerOptions bleScannerOptions = new BleScannerOptions(BleScannerOptions.ScanMode.SCAN_MODE_BALANCE, scanStrategy);
                 bleScanner = new BleScanner(this, bleScannerOptions, this);
                               
                 //If you want to scan for specific UUID(s), do this.
@@ -84,3 +86,6 @@ Require SDK >= 22
     }
     
  
+ Note: 
+ - Remember to stop the scan in `onPause()` or `onDestroyed()` to stop the scan
+ - Use `bleScanner.isScanning()` to check for status
