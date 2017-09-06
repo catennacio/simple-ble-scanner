@@ -87,5 +87,5 @@ Require SDK >= 22
     
  
  Note: 
- - Remember to stop the scan in `onPause()` or `onDestroyed()` to stop the scan
+ - Remember to stop the scan in `onPause()` or `onDestroyed()`
  - Use `bleScanner.isScanning()` to check for status
