@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.catennacio.simpleblescanner.BleScanner;
 import com.catennacio.simpleblescanner.BleScannerListener;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements BleScannerListene
     MenuItem actionScanMenuItem;
 
     private final int PERMISSIONS_REQUEST = 1;
+    private boolean allPermissionsGranted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements BleScannerListene
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        allPermissionsGranted = false;
         hasPermission();
 
         tv = (TextView) findViewById(R.id.tv);
@@ -98,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements BleScannerListene
         {
             case R.id.action_scan:
             {
-                if (hasPermission())
+                if (allPermissionsGranted)
                 {
                     if (isScanning)
                     {
@@ -109,51 +112,48 @@ public class MainActivity extends AppCompatActivity implements BleScannerListene
                         startScan();
                     }
                 }
+                else
+                {
+                    hasPermission();
+                }
                 break;
             }
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean hasPermission()
+    private void hasPermission()
     {
+        Log.d(TAG, "hasPermission: ");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
         {
-            if (ContextCompat
-                .checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-                || ContextCompat
-                .checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             {
-
                 // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.BLUETOOTH_ADMIN))
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION))
                 {
-
-                    // Show an explanation to the user *asynchronously* -- don't block
-                    // this thread waiting for the user's response! After the user
-                    // sees the explanation, try again to request the permission.
+                    Toast.makeText(this, "App needs Location permission to scan", Toast.LENGTH_SHORT).show();
                 }
-                else
-                {
-                    ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH_ADMIN},
-                        PERMISSIONS_REQUEST
-                    );
-                }
-
-                return false;
             }
-            else
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED)
             {
-                return true;
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.BLUETOOTH))
+                {
+                    Toast.makeText(this, "App needs Bluetooth permission to scan", Toast.LENGTH_SHORT).show();
+                }
             }
-        }
-        else
-        {
-            return true;
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED)
+            {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.BLUETOOTH_ADMIN))
+                {
+                    Toast.makeText(this, "App needs Bluetooth admin permission to scan", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            Log.d(TAG, "hasPermission: Requesting permission...");
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN}, PERMISSIONS_REQUEST);
         }
     }
 
@@ -165,15 +165,15 @@ public class MainActivity extends AppCompatActivity implements BleScannerListene
             case PERMISSIONS_REQUEST:
             {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED && grantResults[2] == PackageManager.PERMISSION_GRANTED )
                 {
                     Log.d(TAG, "onRequestPermissionsResult: all permissions granted");
+                    allPermissionsGranted = true;
                 }
                 else
                 {
-                    Log.d(TAG, "onRequestPermissionsResult: " + permissions);
+                    Log.d(TAG, "onRequestPermissionsResult: " + permissions + " grantResult=" + grantResults);
                 }
-                return;
             }
         }
     }

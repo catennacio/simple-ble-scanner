@@ -83,6 +83,7 @@ public class LiveBeaconReading
             sb.append(IBeacon.toString());
             sb.append(",");
         }
+        sb.append("rssi=");
         sb.append(RSSI);
         return sb.toString();
     }
