@@ -54,14 +54,16 @@ public class MainActivity extends AppCompatActivity implements BleScannerListene
         try
         {
             //As of Android N DP4 ble scanner cannot be started more than 5 times per 30 seconds, so only use SCAN_STRATEGY_CONTINUOUS
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
             {
                 scanStrategy = BleScannerOptions.ScanStrategy.SCAN_STRATEGY_CONTINUOUS;
             }
             else
             {
                 scanStrategy = BleScannerOptions.ScanStrategy.SCAN_STRATEGY_PERIODIC;
-            }
+            }*/
+
+            scanStrategy = BleScannerOptions.ScanStrategy.SCAN_STRATEGY_CONTINUOUS;
             Log.d(TAG, "onCreate: scanStrategy = " + scanStrategy);
 
             BleScannerOptions bleScannerOptions = new BleScannerOptions(BleScannerOptions.ScanMode.SCAN_MODE_BALANCE,
@@ -69,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements BleScannerListene
             );
 
             bleScanner = new BleScanner(this, bleScannerOptions, this);
+            //bleScanner.addUuidToMonitor("b2a946c7-ac8d-48c2-b634-9deead60ea15");
         }
         catch (Exception e)
         {
@@ -215,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements BleScannerListene
             sb.append("\n");
             sb.append(liveBeaconReading);
             sb.append("\n");
+            Log.d(TAG, "onBleScannerResult: " + liveBeaconReading);
         }
 
         tv.append(sb.toString());

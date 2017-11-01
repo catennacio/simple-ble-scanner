@@ -48,7 +48,7 @@ public class BleScanRunnable implements Runnable
             System.arraycopy(Utils.hexStringToByteArray(uuid.toString().replace("-","")), 0, manData, 2, 16);
 
             scanFilters.add(new ScanFilter.Builder().setManufacturerData(76, manData, mask).build());
-            Log.d(TAG, "startScan: will scan for " + uuid.toString());
+            Log.d(TAG, "startScan: will scan for uuid " + uuid.toString());
         }
 
         if(scanFilters.size() > 0)
