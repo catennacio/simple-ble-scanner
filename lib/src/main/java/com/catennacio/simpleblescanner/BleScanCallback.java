@@ -3,6 +3,7 @@ package com.catennacio.simpleblescanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.os.ParcelUuid;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.List;
 /**
  * Created by Duy Nguyen on 8/4/17.
  */
-
+@RequiresApi(21)
 public class BleScanCallback extends ScanCallback
 {
     public static final String TAG = BleScanCallback.class.getSimpleName();

@@ -2,11 +2,13 @@ package com.catennacio.simpleblescanner;
 
 import android.bluetooth.le.ScanSettings;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 /**
  * Created by Duy Nguyen on 8/1/17.
  */
+
 
 public class BleScannerOptions
 {
@@ -24,7 +26,7 @@ public class BleScannerOptions
     //The larger the number the longer the algo is notified with the batch of readings, but the more readings it receives
     //Effect: less frequent cyan (prism) dot update, but more accurate.
     private long continuousDispatchInterval;
-    private static final long DEFAULT_CONTINUOUS_DISPATCH_INTERVAL = 1000;//send batch of accumulated readings every 1 sec
+    public static final long DEFAULT_CONTINUOUS_DISPATCH_INTERVAL = 1000;//send batch of accumulated readings every 1 sec
 
     public enum ScanMode
     {
@@ -120,13 +122,13 @@ public class BleScannerOptions
             }
         }
 
-        if(Build.VERSION.SDK_INT > 22)
+        if(Build.VERSION.SDK_INT >= 21)
         {
             scanSettings = new ScanSettings.Builder().setScanMode(this.scanMode).build();
         }
         else
         {
-            scanSettings = new ScanSettings.Builder().setScanMode(this.scanMode).build();
+            scanSettings = null;
         }
     }
 

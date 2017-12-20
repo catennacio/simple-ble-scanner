@@ -4,6 +4,7 @@ import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanFilter;
 import android.os.ParcelUuid;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.List;
 /**
  * Created by Duy Nguyen on 8/4/17.
  */
-
+@RequiresApi(21)
 public class BleScanRunnable implements Runnable
 {
     public static final String TAG = BleScanRunnable.class.getSimpleName();

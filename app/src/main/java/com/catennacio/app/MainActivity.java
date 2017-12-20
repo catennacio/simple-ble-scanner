@@ -20,6 +20,8 @@ import com.catennacio.simpleblescanner.BleScanner;
 import com.catennacio.simpleblescanner.BleScannerListener;
 import com.catennacio.simpleblescanner.BleScannerOptions;
 import com.catennacio.simpleblescanner.LiveBeaconReading;
+import com.catennacio.simpleblescanner.SimpleBleScanner;
+import com.catennacio.simpleblescanner.Utils;
 
 import java.util.List;
 
@@ -30,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements BleScannerListene
     private boolean isScanning;
 
     private BleScanner bleScanner;
-    MenuItem actionScanMenuItem;
+    private MenuItem actionScanMenuItem;
 
     private final int PERMISSIONS_REQUEST = 1;
     private boolean allPermissionsGranted;
@@ -42,9 +44,21 @@ public class MainActivity extends AppCompatActivity implements BleScannerListene
         setContentView(R.layout.activity_main);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        if(!Utils.isBluetoothOn())
+        {
+            Toast.makeText(this, "Turning bluetooth on...", Toast.LENGTH_SHORT).show();
+            Utils.setBluetooth(true);
+        }
 
-        allPermissionsGranted = false;
-        hasPermission();
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
+            allPermissionsGranted = false;
+            hasPermission();
+        }
+        else
+        {
+            allPermissionsGranted = true;
+        }
 
         tv = (TextView) findViewById(R.id.tv);
         tv.setMovementMethod(new ScrollingMovementMethod());
@@ -70,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements BleScannerListene
                 scanStrategy
             );
 
-            bleScanner = new BleScanner(this, bleScannerOptions, this);
+            bleScanner = SimpleBleScanner.newInstance(this, bleScannerOptions, this);
             //bleScanner.addUuidToMonitor("b2a946c7-ac8d-48c2-b634-9deead60ea15");
         }
         catch (Exception e)
