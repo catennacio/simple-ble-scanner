@@ -221,6 +221,14 @@ public class MainActivity extends AppCompatActivity implements BleScannerListene
             Log.d(TAG, "onBleScannerResult: " + liveBeaconReading);
         }
 
-        tv.append(sb.toString());
+        if(readings.size() > 0)
+        {
+            if(tv.getText().length() > 50000)
+            {
+                tv.setText("");
+            }
+
+            tv.append(sb.toString());
+        }
     }
 }
