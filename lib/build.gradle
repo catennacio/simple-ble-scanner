@@ -3,18 +3,18 @@ apply plugin: 'com.android.library'
 ext {
     PUBLISH_GROUP_ID = 'com.catennacio.android'
     PUBLISH_ARTIFACT_ID = 'simple-ble-scanner'
-    PUBLISH_VERSION = '1.1'
+    PUBLISH_VERSION = '1.4'
 }
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '26.0.2'
+    buildToolsVersion '27.0.2'
 
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.4"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -33,73 +33,22 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibVersion"
-    testCompile 'junit:junit:4.12'
-    compile "org.parceler:parceler-api:1.1.6"
+    implementation "com.android.support:appcompat-v7:$rootProject.ext.supportLibVersion"
+    testImplementation 'junit:junit:4.12'
+    implementation "org.parceler:parceler-api:1.1.6"
     annotationProcessor "org.parceler:parceler:1.1.6"
 }
 
 //apply from: 'https://raw.githubusercontent.com/blundell/release-android-library/master/android-release-aar.gradle'
-// To build release: ./gradlew clean build generateRelease
+//To build release: ./gradlew clean build generateRelease
 
-apply plugin: 'maven'
-
-def groupId = project.PUBLISH_GROUP_ID
-def artifactId = project.PUBLISH_ARTIFACT_ID
-def version = project.PUBLISH_VERSION
-
-def localReleaseDest = "${buildDir}/release/${version}"
-
-task androidJavadocs(type: Javadoc) {
-    failOnError = false
-    source = android.sourceSets.main.java.srcDirs
-    ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
-    classpath += files(ext.androidJar)
-}
-
-task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
-    classifier = 'javadoc'
-    from androidJavadocs.destinationDir
-}
-
-task androidSourcesJar(type: Jar) {
-    classifier = 'sources'
-    from android.sourceSets.main.java.srcDirs
-}
-
-uploadArchives {
-    repositories.mavenDeployer {
-        pom.groupId = groupId
-        pom.artifactId = artifactId
-        pom.version = version
-        // Add other pom properties here if you want (developer details / licenses)
-        repository(url: "file://${localReleaseDest}")
-    }
-}
-
-task zipRelease(type: Zip) {
-    from localReleaseDest
-    destinationDir buildDir
-    archiveName "release-${version}.zip"
-}
-
-task generateRelease {
-    doLast {
-        println "Release ${version} can be found at ${localReleaseDest}/"
-        println "Release ${version} zipped can be found ${buildDir}/release-${version}.zip"
-    }
-}
-
-generateRelease.dependsOn(uploadArchives)
-generateRelease.dependsOn(zipRelease)
+//To build
+//./gradlew clean build bintrayUpload -PbintrayUser=catennacio@gmail.com -PbintrayKey=b514a4826320f788d7b6bb93a3b117df398dfba0 -PdryRun=false
 
 
-artifacts {
-    archives androidSourcesJar
-    archives androidJavadocsJar
-}
-
+// ./gradlew clean build generateRelease
+apply from: 'generateRelease.gradle'
